@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+_DEBUG=1
 
 class Maze:
     def __init__(self, data=None, shape=(4, 4)) -> None:
@@ -53,10 +54,11 @@ class Maze:
         while self.data[(-1,)*self.dimension] == 1:
             self.data.fill(1)
             self.data = _MazeGenerator(self.data)()
+        # self.data = _MazeGenerator(self.data)()
 
     def findpath(self, start=None, end=None):
         if start == None:
-            start = (0, 0)
+            start = (0,)*self.dimension
         elif not self.legalTicker(np.array(start, dtype=np.int32)):
             raise ValueError("start not a valid ticker")
         if end == None:
@@ -72,6 +74,19 @@ class _MazeGenerator(Maze):
         self.exploreHistory = [np.array((0,)*self.dimension, dtype=np.int32)]
         self.result = False
         self.funcDeque = []  # (func, (args))
+        if self.dimension == 4:
+            try:
+                if not _DEBUG:
+                    raise ImportError("Unknown bug not ready to be fixed")
+                import mazeGeneratorCExtension as fourDExtension
+                self.extended = True
+                self.fourDExtension = fourDExtension
+            except ImportError:
+                if _DEBUG:
+                    __import__('traceback').print_exc()
+                self.extended = False
+        else:
+            self.extended = False
 
     def emptyNeighbors(self, ticker):
         return [t for t in self.neighbors(ticker) if self[t] == 1]
@@ -119,14 +134,31 @@ class _MazeGenerator(Maze):
         for _ in range(int(prop*self.smul(self.shape))):
             self.dig(self.nran())
 
+    def makeDest(self, _f=None):
+        "make way to dest if a path doesn't exist."
+        if _f is None:
+            if self[[i-1 for i in self.shape]] == 1:
+                try:
+                    self.makeDest([i-1 for i in self.shape])
+                except RuntimeError:
+                    return
+        else:
+            if self.dig(_f) == 0:
+                raise RuntimeError
+            self.makeDest(random.choice(self.neighbors(_f)))
+
     def __call__(self):
         if self.result == False:
-            self.explore(np.array((0,)*self.dimension, dtype=np.int32))
-            while self.funcDeque:
-                func, args = self.funcDeque.pop(0)
-                func(*args)
+            if self.dimension == 4 and self.extended:
+                self.fourDExtension.generate(self)
+            else:
+                self.explore(np.array((0,)*self.dimension, dtype=np.int32))
+                while self.funcDeque:
+                    func, args = self.funcDeque.pop(0)
+                    func(*args)
             self.result = True
-        self.randRemove()
+            self.makeDest()
+            self.randRemove()
         return self.data
 
 
@@ -176,7 +208,9 @@ class _PathFinder:
 
 
 if __name__ == "__main__":
-    a = Maze(shape=(20, 20))
+    a = Maze(shape=(20, 20, 1, 1))
     a.generate()
-    print(a)
-    print(''.join([str(i).replace(' ', '') for i in a.findpath()]))
+    print(hex(a.data.ctypes._as_parameter_.value))
+    a2 = Maze(a.data[:, :, 0, 0], (20, 20))
+    print(a2)
+    print(''.join([str(i).replace(' ', '') for i in a2.findpath()]))
