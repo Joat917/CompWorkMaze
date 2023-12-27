@@ -21,7 +21,7 @@ class Main:
         Main.root = pygame.display.set_mode(self.screenSize)
         pygame.display.set_caption("MazeProject")
         try:
-            im=pygame.image.load('./img/icon.png')
+            im = pygame.image.load('./img/icon.png')
             pygame.display.set_icon(im)
         except:
             pass
@@ -75,7 +75,7 @@ class Main:
 
 
 class Background:
-    def __init__(self, fp='./img/background.jpg', alt=(200, 0, 0)) -> None:
+    def __init__(self, fp='./img/background.jpg', alt=(0, 0, 100)) -> None:
         try:
             im = Image.open(fp).convert('RGB')
             im = im.resize(Main.screenSize)
@@ -91,7 +91,7 @@ class Background:
 
 class Button:
     def __init__(self, rect: pygame.Rect, text='Button', textcolor=(255, 255, 255, 255),
-                 color=(127, 127, 127, 255), onclick=lambda: None,
+                 color=(127, 127, 127, 100), onclick=lambda: None,
                  font=ImageFont.truetype('arial.ttf', 20), keyCodes=[], buttonCodes=[1]) -> None:
         self.rect = rect
         self.onclick = onclick
@@ -547,15 +547,16 @@ class Settings:
         self.background = Background()
         self.buttons = [
             Button(pygame.Rect(0, 0, 720, 540), '', color=(0, 0, 0, 100)),
-            Button(pygame.Rect(10, 10, 100, 60), 'Settings'),
+            Button(pygame.Rect(10, 10, 150, 60), 'Settings', color=(0, 0, 0, 0),
+                   font=ImageFont.truetype('arial.ttf', 32)),
             Button(pygame.Rect(10, 80, 100, 60), 'Columns'),
             Button(pygame.Rect(10, 150, 100, 60), 'Rows'),
             Button(pygame.Rect(10, 220, 100, 60), 'Z-Coord'),
             Button(pygame.Rect(10, 290, 100, 60), 'W-Coord'),
             Button(pygame.Rect(10, 360, 100, 60),
-                   'Discard', onclick=self.end),
+                   'Discard', color=(255, 0, 0, 150), onclick=self.end),
             Button(pygame.Rect(120, 360, 100, 60),
-                   'Save', onclick=self.save),
+                   'Save', color=(0, 255, 0, 150), onclick=self.save),
         ]
 
         def _add(i, d):
