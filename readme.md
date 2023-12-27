@@ -2,8 +2,6 @@
 
 ## 一、代码说明
 
-+ **该项目所有的源码均存在于code文件夹下。**
-
 ### （一）maze.py
 
 maze.py包含迷宫存储、访问、生成和寻路的相关代码。如果直接运行，它会输出一个20*20的迷宫，并直接给出左上到右下的最短路径。
@@ -222,10 +220,9 @@ mazeGeneratorCExtension.py和一些dll文件的作用是辅助生成四维迷宫
 
 $\mathrm{Coming\ \ S}\infty \mathrm{n}:$
 
-1. 中文界面。
+1. 中文界面 and English instruction files; 
 
 2. 把计算中的未响应界面做成鼠标狂点的小游戏。
 
 3. 打包成可执行文件。
 
-4. 上传GitHub。
